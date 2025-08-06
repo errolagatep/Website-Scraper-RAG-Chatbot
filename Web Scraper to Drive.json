@@ -1,0 +1,252 @@
+{
+  "name": "Web Scraper to Drive",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "374f2087-9015-4870-9dbc-d2a5518a7dd0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://bydcarsphilippines.com/vehicles/byd-han",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e5ae8a56-4dea-4cc7-9866-e438eb1798ef",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "36bab6f1-eb2b-4c18-a35b-10eb5a93e950",
+      "name": "Markdown"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $json.data }}",
+        "name": "={{ $now }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1sQmPNsoPl1iM7_-YN8vegVp5Y1vMyyUi",
+          "mode": "list",
+          "cachedResultName": "RAG Training Data",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1sQmPNsoPl1iM7_-YN8vegVp5Y1vMyyUi"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "5adba896-b31b-452f-8ed4-c3a779600ddc",
+      "name": "Create file from text",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Vi9HsYmqpHQEhSQm",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "webscraperindex",
+          "mode": "list",
+          "cachedResultName": "webscraperindex"
+        },
+        "options": {
+          "pineconeNamespace": "bydcarsph"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        912,
+        0
+      ],
+      "id": "8ca758ed-835d-46eb-96fb-c30072600187",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "0gG4e01helxo51YO",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        896,
+        224
+      ],
+      "id": "8eadda45-dcaf-479f-81be-b218df91cb2c",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "8Lq827CER3ZvjmCH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "bydcarsph"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        224
+      ],
+      "id": "36c7fa2b-2d0f-4e4f-ac16-84c23910420b",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        432
+      ],
+      "id": "1d28a4c6-453c-4293-99e3-58016b7cd9b0",
+      "name": "Character Text Splitter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Create file from text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create file from text": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "31a5c300-b850-4cee-960a-2d5839c73e21",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4d2899c4aafb5acbb6afa29a6e312bf5d549bd6f1cba989e1a802b6ceee06221"
+  },
+  "id": "hIldPuNmSubtUBSM",
+  "tags": []
+}

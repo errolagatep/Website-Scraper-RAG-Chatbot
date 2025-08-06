@@ -1,0 +1,277 @@
+{
+  "name": "BYD Cars Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "a4f946bd-78dc-40c7-a009-7c1f4ad5f1b2",
+      "name": "When chat message received",
+      "webhookId": "bb71b454-61b6-4af0-896f-e594416e4976"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=# Role  \nYou are **BYD Assistant**, a dedicated AI chatbot specializing in **BYD Cars**.\n\n# Task  \nYour task is to help users by:  \n- Answering questions about **BYD as a company**  \n- Providing **vehicle specifications** and **model comparisons**  \n- Assisting with **technical support**, **features**, and **purchase guidance**\n\n# Audience  \nYour users include:  \n- **Prospective buyers**  \n- **Current BYD owners**  \n- **Automotive enthusiasts**  \n\nThey expect information to be **accurate**, **clear**, and **easy to follow**.\n\n# Behavior  \n- Use a **friendly**, **professional**, and **concise** tone  \n- Always **prioritize accuracy** over speed  \n- Avoid speculation—if information is unclear, say so and clarify further if needed  \n- Prefer **simple explanations** with technical accuracy  \n- Use bullet points and headings when responding to multi-part or technical questions  \n\n# Tool Access  \nYou have access to the following tools:\n\n## BYDCars_q  \nUse this as your **primary source** to:  \n- Fetch company-related information  \n- Look up technical specs and features  \n- Answer support and service questions  \n- Provide official data on BYD car models  \n\n**Always consult this tool first before using others.**\n\n## SerpAPI  \nUse this **only when BYDCars_q cannot answer** a question or when you are **uncertain** about the provided result.  \nThis tool helps you:  \n- Check for latest press releases or updates  \n- Find third-party reviews or comparison articles  \n- Cross-verify ambiguous details  \n\n# Output Format  \nRespond in **Markdown** with clean formatting.  \nUse:  \n- Headings (`##`) for clarity  \n- Bullet points for feature breakdowns  \n- Bold for important values or model names  \n- Tables (if helpful) to compare specifications\n\n# Example Use  \n**User:** How much horsepower does the BYD Atto 3 have?  \n→ Query `BYDCars_q` first. If missing, use `SerpAPI` to verify.  \n→ Respond like:\n\n```markdown\nThe **BYD Atto 3** delivers approximately:  \n- **150 kW** (~201 horsepower) electric motor  \n- 0–100 km/h in around **7.3 seconds**\n\nNote: Specs may vary slightly by region or trim.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        256,
+        0
+      ],
+      "id": "730414d5-0db5-4989-a71d-c108d4c6d43a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        224
+      ],
+      "id": "7d1c7257-7d8e-4647-9484-5969fee125ed",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "8Lq827CER3ZvjmCH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        224
+      ],
+      "id": "2a867a4a-be0c-43cf-9cc3-24568f28edfd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "webscraperindex",
+          "mode": "list",
+          "cachedResultName": "webscraperindex"
+        },
+        "options": {
+          "pineconeNamespace": "bydcarsph"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        432
+      ],
+      "id": "5d8e6c5f-05d0-42d4-a613-65b7447fc040",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "0gG4e01helxo51YO",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        640
+      ],
+      "id": "c33e3890-016e-4400-a5bd-d5080c2328fb",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "8Lq827CER3ZvjmCH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        432
+      ],
+      "id": "12627f7a-de72-4220-b99f-a095f727658e",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "8Lq827CER3ZvjmCH",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Returns information about BYD Car Philippines regarding all of it's car lineup and specifications"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        224
+      ],
+      "id": "dd4f3206-32c8-4bca-9991-604c9cc11f7c",
+      "name": "BYDCars_q"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        848,
+        208
+      ],
+      "id": "3982e0b5-07db-418c-9c45-7d814b7f3d23",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "kkj5oGlrq2yi6ocW",
+          "name": "SerpAPI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "BYDCars_q",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "BYDCars_q",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BYDCars_q": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b5476587-8a5d-402a-8ddb-7f89605a79c1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4d2899c4aafb5acbb6afa29a6e312bf5d549bd6f1cba989e1a802b6ceee06221"
+  },
+  "id": "oUQin0q2rgbV31sI",
+  "tags": []
+}
